@@ -33,7 +33,7 @@ class Food:
     
     def update_place(self):
         bigger_randint = int(board_size / small_square)
-        self.x = self.y = white_space + small_square/2 + (small_square)*random.randint(1, bigger_randint-1)
+        self.x = self.y = white_space + small_square/2 + (small_square)*random.randint(1, bigger_randint-2)
 
 pygame.init()
 
@@ -68,12 +68,13 @@ up = False
 down = False
 left = True
 right = False
+bloqueado = 'right'
 
 clock = pygame.time.Clock()
 
 # e aqui nós entramos no loop do game
 while True:
-    clock.tick(7)
+    clock.tick(5)
 #                                                         X            Y      TAMANHO X   TAMANHO Y
     grow = False
     pygame.draw.rect(display_surf, black, pygame.Rect(white_space, white_space, board_size, board_size),  1)
@@ -86,26 +87,30 @@ while True:
 
     # Detecta teclas pressionadas
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP]:
+    if keys[pygame.K_UP] and bloqueado != 'up':
         up = True
         down = False
         left = False
         right = False
-    if keys[pygame.K_DOWN]:
+        bloqueado = 'down'
+    if keys[pygame.K_DOWN] and bloqueado != 'down':
         up = False
         down = True
         left = False
         right = False
-    if keys[pygame.K_LEFT]:
+        bloqueado = 'up'
+    if keys[pygame.K_LEFT] and bloqueado != 'left':
         up = False
         down = False
         left = True
         right = False
-    if keys[pygame.K_RIGHT]:
+        bloqueado = 'right'
+    if keys[pygame.K_RIGHT] and bloqueado != 'right':
         up = False
         down = False
         left = False
         right = True
+        bloqueado = 'left'
     if keys[pygame.K_ESCAPE]:
         pygame.quit()
 
@@ -114,7 +119,7 @@ while True:
         pygame.quit()
     if snake.body[0][1] < white_space or snake.body[0][1] >= white_space + board_size - snake.size + 1:
         pygame.quit()
-    
+
     # Cobra comer comida
     if snake.body[0][0] == food.x and snake.body[0][1] == food.y:
         grow = True
