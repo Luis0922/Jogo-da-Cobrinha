@@ -1,24 +1,39 @@
 import pygame, sys
+import random
 
-class Cobra:
-    def __init__(self, corpo, size):
-        self.corpo = corpo
+class Sneak:
+    def __init__(self, body, size):
+        self.body = body
         self.size = size
-        
-    def move(self, up, down, left, right):
+
+    def move(self, up, down, left, right, grow):
         # Cobra anda automaticamente
         if up:
-            self.corpo.insert(0, [self.corpo[0][0], self.corpo[0][1] - self.size])
-            self.corpo.pop()
+            self.body.insert(0, [self.body[0][0], self.body[0][1] - self.size])
+            if grow == False:
+                self.body.pop()
         if down:
-            self.corpo.insert(0, [self.corpo[0][0], self.corpo[0][1] + self.size])
-            self.corpo.pop()
+            self.body.insert(0, [self.body[0][0], self.body[0][1] + self.size])
+            if grow == False:
+                self.body.pop()
         if left:
-            self.corpo.insert(0, [self.corpo[0][0] - self.size, self.corpo[0][1]])
-            self.corpo.pop()
+            self.body.insert(0, [self.body[0][0] - self.size, self.body[0][1]])
+            if grow == False:
+                self.body.pop()
         if right:
-            self.corpo.insert(0, [self.corpo[0][0] + self.size, self.corpo[0][1]])
-            self.corpo.pop()
+            self.body.insert(0, [self.body[0][0] + self.size, self.body[0][1]])
+            if grow == False:
+                self.body.pop()
+
+class Food:
+    def __init__(self, x, y, size):
+        self.x = x
+        self.y = y
+        self.size = size
+    
+    def update_place(self):
+        bigger_randint = int(board_size / small_square)
+        self.x = self.y = white_space + small_square/2 + (small_square)*random.randint(1, bigger_randint-1)
 
 pygame.init()
 
@@ -38,9 +53,13 @@ pygame.display.set_caption('Jogo da Cobrinha')
 board_size = display_size - 100
 white_space = (display_size - board_size)/2
 small_square = 20
-board_center = (display_size / 2) - (small_square / 2)
+board_center = (display_size / 2)
 
-cobra = Cobra([[board_center, board_center], [board_center+small_square-2, board_center], [board_center+2*(small_square-2), board_center], [board_center+4*(small_square-2), board_center]], small_square-2)
+snake = Sneak([[board_center, board_center]], small_square)
+
+bigger_randint = int(board_size / small_square)
+food_position = white_space + small_square/2 + (small_square)*random.randint(0, bigger_randint-2)
+food = Food(food_position, food_position, small_square/2)
 
 clock = pygame.time.Clock()
 FPS = 90
@@ -56,10 +75,14 @@ clock = pygame.time.Clock()
 while True:
     clock.tick(7)
 #                                                         X            Y      TAMANHO X   TAMANHO Y
+    grow = False
     pygame.draw.rect(display_surf, black, pygame.Rect(white_space, white_space, board_size, board_size),  1)
     pygame.draw.rect(display_surf, white, pygame.Rect(white_space+1, white_space+1, board_size-2, board_size-2))
-    for parte in cobra.corpo:
-        pygame.draw.rect(display_surf, red, pygame.Rect(parte[0], parte[1], cobra.size, cobra.size))
+    # Food
+    pygame.draw.rect(display_surf, black, pygame.Rect(food.x, food.y, food.size, food.size))
+    # Snake
+    for parte in snake.body:
+        pygame.draw.rect(display_surf, red, pygame.Rect(parte[0], parte[1], snake.size, snake.size))
 
     # Detecta teclas pressionadas
     keys = pygame.key.get_pressed()
@@ -87,10 +110,16 @@ while True:
         pygame.quit()
 
     # Logica de derrota
-    if cobra.corpo[0][0] < white_space or cobra.corpo[0][0] >= white_space + board_size - cobra.size + 1:
+    if snake.body[0][0] < white_space or snake.body[0][0] >= white_space + board_size - snake.size + 1:
         pygame.quit()
-    if cobra.corpo[0][1] < white_space or cobra.corpo[0][1] >= white_space + board_size - cobra.size + 1:
+    if snake.body[0][1] < white_space or snake.body[0][1] >= white_space + board_size - snake.size + 1:
         pygame.quit()
+    
+    # Cobra comer comida
+    if snake.body[0][0] == food.x and snake.body[0][1] == food.y:
+        grow = True
+        food.update_place()
+
 
     # monitoramos os eventos
     for evento in pygame.event.get():
@@ -102,5 +131,5 @@ while True:
             sys.exit()
 
     # redesenha a tela continuamente 
-    cobra.move(up, down, left, right)
+    snake.move(up, down, left, right, grow)
     pygame.display.update()
