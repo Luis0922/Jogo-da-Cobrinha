@@ -72,8 +72,16 @@ bloqueado = 'right'
 
 clock = pygame.time.Clock()
 
+score = 0
+pygame.font.init()
+score_source = pygame.font.SysFont("Arial", 20, False, False)
+
 # e aqui nós entramos no loop do game
 while True:
+    display_surf.fill((255, 255, 255))
+    text_score = score_source.render(f"Score: {score}", 1, (0, 0, 0))
+    display_surf.blit(text_score, (0, 0))
+
     clock.tick(5)
 #                                                         X            Y      TAMANHO X   TAMANHO Y
     grow = False
@@ -114,14 +122,22 @@ while True:
     if keys[pygame.K_ESCAPE]:
         pygame.quit()
 
+    # Logica de vitoria
+
+
     # Logica de derrota
     if snake.body[0][0] < white_space or snake.body[0][0] >= white_space + board_size - snake.size + 1:
         pygame.quit()
     if snake.body[0][1] < white_space or snake.body[0][1] >= white_space + board_size - snake.size + 1:
         pygame.quit()
+    # A cabeça encontrou o proprio corpo
+    for i in range(1, len(snake.body)):
+        if snake.body[0] == snake.body[i]:
+            pygame.quit()
 
     # Cobra comer comida
     if snake.body[0][0] == food.x and snake.body[0][1] == food.y:
+        score = score + 100
         grow = True
         food.update_place()
 
