@@ -42,7 +42,8 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 
-display_size = 400
+small_square = 20
+display_size = 20 * small_square
 
 display_surf = pygame.display.set_mode((display_size, display_size))
 
@@ -52,8 +53,8 @@ pygame.display.set_caption('Jogo da Cobrinha')
 
 board_size = display_size - 100
 white_space = (display_size - board_size)/2
-small_square = 20
 board_center = (display_size / 2)
+board_area = board_size / small_square ** 2
 
 snake = Sneak([[board_center, board_center]], small_square)
 
@@ -123,7 +124,10 @@ while True:
         pygame.quit()
 
     # Logica de vitoria
-
+    if len(snake.body) == board_area:
+        # CONGRATILATIONS YOU WIN
+        # Tela de vitoria
+        pygame.quit()
 
     # Logica de derrota
     if snake.body[0][0] < white_space or snake.body[0][0] >= white_space + board_size - snake.size + 1:
